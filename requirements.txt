@@ -1,0 +1,29 @@
+#Backend
+fastapi
+uvicorn
+python-multipart
+
+# OCR
+python-docx
+PyMuPDF
+Pillow
+opencv-python-headless
+doctr[torch]
+
+# Text Processing
+sentence-transformers
+faiss-cpu
+
+# LLM API
+google-generativeai
+
+# Optional for PDF manipulation or safety
+pdfplumber
+pdf2image
+
+# Web Frameworks
+fastapi[all]
+
+# Frontend
+streamlit
+requests
