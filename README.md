@@ -35,7 +35,7 @@ ocr-rag-chatbot/
     ├── embeddings.py       # Embedding generator
     ├── vector_store.py     # ChromaDB logic
     ├── retriever.py        # Vector similarity search
-    ├── gemini_qa.py        # LLM query answering
+    ├── llm.py        # LLM query answering
     └── web_fallback.py     # Tavily-based fallback logic
 ```
 
@@ -46,8 +46,8 @@ ocr-rag-chatbot/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/ocr-rag-chatbot.git
-cd ocr-rag-chatbot
+git clone https://github.com/Hanan899/RAG-Based-Chatbot.git
+cd RAG-Based-Chatbot
 ```
 
 ### 2. Create a virtual environment & install dependencies
@@ -145,7 +145,7 @@ Use it freely in your personal or commercial projects.
 **Abdul Hanan**  
 AI Intern @ Hazen Technologies  
 🔗 [LinkedIn](https://www.linkedin.com/in/abdul-hanan-2003-)  
-📧 abdulhanan@example.com
+📧 a.hananwork4@gmail.com
 
 ---
 
