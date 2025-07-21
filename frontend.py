@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import time
+import streamlit.components.v1 as components
 
 FASTAPI_URL = "http://127.0.0.1:8000"
 
