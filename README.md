@@ -1,42 +1,43 @@
-Here is your final **professional `README.md`** ready for uploading to GitHub for your OCR-based RAG Chatbot project:
 
+# 🔍 OCR-Based RAG Chatbot using FastAPI, Streamlit, ChromaDB & Gemini
 
+A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Gemini)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
 
-# 🔍 OCR-Based RAG Chatbot using FastAPI, Streamlit & Gemini
+A practical example of **Retrieval-Augmented Generation (RAG)** with dynamic fallback.
 
-This project is a document-based chatbot built using **OCR**, **vector similarity search**, and **LLMs (Gemini API)**. It enables users to upload scanned PDFs, extract content using OCR, store meaningful chunks in a vector store, and interact with the documents through natural language queries. A real-world example of **Retrieval-Augmented Generation (RAG)** in action.
-
+---
 
 ## 🚀 Features
 
-- 📄 Upload scanned PDFs (e.g., research papers, handwritten notes, textbooks)
-- 🧠 OCR processing using Tesseract + OpenCV
-- 📚 Semantic chunking and embedding generation using `sentence-transformers`
-- 🔍 Vector search using ChromaDB (LangChain)
-- 🤖 Gemini Pro (Generative AI) for natural language answer generation
-- ⚡ FastAPI backend for processing and querying
-- 🌐 Streamlit frontend for chat interaction
+- 📄 Upload scanned PDFs or images
+- 🔤 Extract text using Tesseract OCR
+- ✂️ Chunk & preprocess text with overlap
+- 🔎 Semantic similarity search using ChromaDB
+- 🤖 Answer generation using Google Gemini LLM
+- 🌐 Web fallback using Tavily API (when PDFs don't help)
+- 💬 Interactive frontend with Streamlit
+- ⚡ FastAPI backend for modular logic
 
 ---
 
 ## 📁 Project Structure
 
-```
-
-OCR-RAG-Chatbot/
+```text
+ocr-rag-chatbot/
 │
-├── app.py                      # FastAPI backend (document ingestion & chat endpoint)
-├── frontend.py                # Streamlit UI
-├── chroma/                    # Vector store data (auto-generated)
-├── data/                      # Uploaded PDFs
-├── .venv/                     # Python virtual environment
+├── app.py                  # FastAPI backend
+├── frontend.py             # Streamlit interface
+├── chroma/                 # Vector store (ChromaDB)
+├── data/                   # Uploaded files
 └── utils/
-├── document\_loader.py     # Handles OCR from PDF bytes
-├── text\_splitter.py       # Splits documents into overlapping chunks
-├── vector\_store.py        # VectorDB handling (store, load, search)
-└── image\_preprocess.py    # Enhances scanned images before OCR
-
-````
+    ├── ocr_utils.py        # OCR with Tesseract
+    ├── chunking.py         # Chunking & preprocessing
+    ├── embeddings.py       # Embedding generator
+    ├── vector_store.py     # ChromaDB logic
+    ├── retriever.py        # Vector similarity search
+    ├── gemini_qa.py        # LLM query answering
+    └── web_fallback.py     # Tavily-based fallback logic
+```
 
 ---
 
@@ -47,35 +48,39 @@ OCR-RAG-Chatbot/
 ```bash
 git clone https://github.com/your-username/ocr-rag-chatbot.git
 cd ocr-rag-chatbot
-````
+```
 
-### 2. Create a virtual environment and install dependencies
+### 2. Create a virtual environment & install dependencies
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+source .venv/bin/activate     # For Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure your environment
+### 3. Install required tools
 
-Ensure these tools are installed:
-
-* [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) and its path set in `document_loader.py`
-* [Poppler](http://blog.alivate.com.au/poppler-windows/) for PDF to image conversion
-* [Gemini API key](https://makersuite.google.com/app) exported as:
+- [✅ Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (add to PATH)
+- [✅ Poppler](http://blog.alivate.com.au/poppler-windows/) (for `pdf2image`)
+- [✅ Gemini API key](https://makersuite.google.com/app) → export as:
 
 ```bash
-export GOOGLE_API_KEY=your_gemini_api_key_here
+export GOOGLE_API_KEY=your_api_key_here
 ```
 
-### 4. Run the backend
+- [✅ Tavily API key](https://docs.tavily.com/) → export as:
+
+```bash
+export TAVILY_API_KEY=your_tavily_api_key_here
+```
+
+### 4. Run the backend (FastAPI)
 
 ```bash
 uvicorn app:app --reload
 ```
 
-### 5. Run the frontend
+### 5. Run the frontend (Streamlit)
 
 ```bash
 streamlit run frontend.py
@@ -85,69 +90,72 @@ streamlit run frontend.py
 
 ## ✨ How It Works
 
-1. **PDF Upload**: User uploads scanned PDF files through Streamlit.
-2. **OCR Extraction**: Each page is preprocessed with OpenCV and passed to Tesseract.
-3. **Chunking**: Text is split into overlapping chunks using LangChain.
-4. **Embedding**: Chunks are embedded with HuggingFace's MiniLM model.
-5. **Storage**: Embeddings are stored in Chroma vector DB.
-6. **Querying**: When a user asks a question, relevant chunks are retrieved and passed to Gemini for generating an answer.
+1. **User Uploads PDF** → Converted to images → OCR via Tesseract  
+2. **Text Chunked** into overlapping segments  
+3. **Embeddings** generated using `sentence-transformers`  
+4. **Stored in ChromaDB** for semantic search  
+5. **Query Received** → Search vector store for matches  
+6. If match:
+   - Gemini LLM uses PDF context  
+7. If no match or vague response:
+   - Tavily API retrieves web content → Answer via Gemini
 
 ---
 
 ## 🧪 Example Use Cases
 
-* Document Q\&A Assistant (SOPs, policies)
-* University Note & Book Chatbot
-* Legal Document Analyzer
-* Research Assistant for PDFs
+- Internal PDF Q&A (manuals, policies)
+- Academic Assistant (notes, research papers)
+- Legal Document Interrogation
+- Government Policy Bot
+- Resume or Report Chatbot
 
 ---
 
-## ✅ Sample Query
+## 🧠 Sample Query
 
-> Upload: `Machine Learning.pdf`
-> Ask: *"What are supervised learning types?"*
-> Response: Gemini generates an answer using chunks related to supervised learning from your file.
+> Upload: `machine_learning_guide.pdf`  
+> Ask: “What are model evaluation metrics?”  
+> ✅ Gemini replies based on PDF  
+> ❌ If not found → Tavily gets Wikipedia content → Gemini replies
 
 ---
 
-## 📦 Dependencies
+## 📦 Key Dependencies
 
-* `FastAPI`, `Uvicorn`
-* `Streamlit`
-* `LangChain`, `Chroma`
-* `Tesseract`, `OpenCV`, `pdf2image`
-* `HuggingFace sentence-transformers`
-* `Google Generative AI SDK (Gemini)`
+- `fastapi`, `uvicorn`
+- `streamlit`
+- `sentence-transformers`
+- `chromadb`
+- `tesserocr`, `opencv-python`, `pdf2image`
+- `google.generativeai` (Gemini API)
+- `tavily-python`
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
-You are free to use, modify, and distribute.
+This project is licensed under the **MIT License**.  
+Use it freely in your personal or commercial projects.
 
 ---
 
-## 🙋‍♂️ Author
+## 👨‍💻 Author
 
-**Abdul Hanan**
-AI Engineer | Robotics | ML Researcher
-🔗 [LinkedIn Profile](https://www.linkedin.com/in/abdul-hanan-2003-)
+**Abdul Hanan**  
+AI Intern @ Hazen Technologies  
+🔗 [LinkedIn](https://www.linkedin.com/in/abdul-hanan-2003-)  
+📧 abdulhanan@example.com
 
 ---
 
-## 💡 Want to Contribute?
+## 🤝 Want to Contribute?
 
-Pull requests, suggestions, and issues are welcome!
-If you'd like to expand this project (e.g., add RAG agents, online deployment, audio support), feel free to fork and contribute.
+Contributions and forks are welcome!  
+If you'd like to extend this chatbot with:
+- 🔁 Agent support
+- 🔊 Audio Input/Output
+- 🐳 Docker deployment
+- ☁️ Streamlit Cloud integration
 
-
-
-Let me know if you'd like a:
-
-- `requirements.txt` file  
-- `Dockerfile`  
-- `Gemini Agent support`  
-- `LangChain + OpenRouter` alternative version  
-- or complete deployment instructions for Streamlit Cloud, Hugging Face Spaces, or Render.
+Feel free to fork or open a pull request.
