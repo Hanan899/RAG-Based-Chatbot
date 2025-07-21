@@ -2,7 +2,7 @@ from tavily import TavilyClient
 import re
 from utils.llm import generate_answer_from_gemini  # import your Gemini LLM function
 
-TAVILY_API_KEY = "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"
+TAVILY_API_KEY = "Api_Key"
 client = TavilyClient(api_key=TAVILY_API_KEY)
 
 def clean_text(text):
@@ -33,6 +33,10 @@ def web_search_structured_answer(query, max_results=3):
         structured_answer = generate_answer_from_gemini(query, cleaned_context)
 
         return structured_answer
+
+    except Exception as e:
+        return f"❌ Search or processing error: {str(e)}"
+
 
     except Exception as e:
         return f"❌ Search or processing error: {str(e)}"
