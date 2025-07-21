@@ -1,12 +1,18 @@
 from fastapi import FastAPI, UploadFile, File
 from utils.document_loader import process_pdf_bytes
 from utils.text_splitter import split_documents
-from utils.vector_store import add_to_vector_store, load_vector_store, query_vector_store
+from utils.vector_store import add_to_vector_store, query_vector_store
 import base64
 from utils.llm import generate_answer_from_gemini
+from utils.web_search_tavily import web_search_structured_answer
 
 app = FastAPI()
 CHROMA_PATH = "chroma"
+
+
+@app.get("/")
+def root():
+    return {"status": "running"}
 
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
@@ -27,11 +33,40 @@ async def upload_file(file: UploadFile = File(...)):
         "size_decoded_bytes": len(decoded_bytes)
     }
 
+
+
 @app.post("/chat/")
 async def chat_with_llm(query: str):
-    docs = query_vector_store(query, return_docs=True)
-    full_context = "\n\n".join(docs)
-    
-    # send full_context + query to Gemini here...
-    response = generate_answer_from_gemini(query, full_context)
-    return {"answer": response}
+    try:
+        # Step 1: Try RAG vector store
+        docs = query_vector_store(query, return_docs=True)
+        print(f"🔍 RAG vector store returned {len(docs)} documents for query: {query}")
+
+        if docs:
+            context = "\n\n".join(docs)
+            answer = generate_answer_from_gemini(query, context)
+
+            # Step 1.5: Check if Gemini said "I don't know"
+            if answer is None:  # Gemini fallback trigger
+                print("⚠️ Gemini indicated no useful info in PDF context. Falling back to web search.")
+                answer = web_search_structured_answer(query)
+                source = "🌐 Answer from web search + Gemini"
+            else:
+                source = "📄 Answer from PDF using RAG"
+        else:
+            print("🔍 No relevant documents from vector store. Using web search directly.")
+            answer = web_search_structured_answer(query)
+            source = "🌐 Answer from web search + Gemini"
+
+        return {
+            "answer": answer,
+            "source": source,
+            "tokens": len(answer.split()) if isinstance(answer, str) else 0
+        }
+
+    except Exception as e:
+        return {
+            "answer": f"❌ Unexpected error: {str(e)}",
+            "source": "⚠️ None",
+            "tokens": 0
+        }
