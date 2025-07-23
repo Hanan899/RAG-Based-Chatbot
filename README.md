@@ -28,15 +28,13 @@ ocr-rag-chatbot/
 ├── app.py                  # FastAPI backend
 ├── frontend.py             # Streamlit interface
 ├── chroma/                 # Vector store (ChromaDB)
-├── data/                   # Uploaded files
 └── utils/
-    ├── ocr_utils.py        # OCR with Tesseract
-    ├── chunking.py         # Chunking & preprocessing
-    ├── embeddings.py       # Embedding generator
-    ├── vector_store.py     # ChromaDB logic
-    ├── retriever.py        # Vector similarity search
-    ├── llm.py        # LLM query answering
-    └── web_fallback.py     # Tavily-based fallback logic
+    ├── document_loader.py        # OCR with Tesseract
+    ├── image_preprocess.py       # Preprocessing
+    ├── text_splitter.py          # Chunking and references
+    ├── vector_store.py           # Embeddings, ChromaDB and Vector similarity search
+    ├── llm.py                    # LLM query answering
+    └── web_search_tavily.py      # Tavily-based fallback logic
 ```
 
 ---
