@@ -14,7 +14,6 @@ async def upload_file(file: UploadFile = File(...)):
     pdf_bytes = await file.read()
     encoded_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
     decoded_bytes = base64.b64decode(encoded_b64)
-    print(f"📥 Received file: {file.filename}")
 
     # Process in memory from base64 stream
     doc = process_pdf_bytes(decoded_bytes, file.filename)
@@ -48,7 +47,6 @@ async def chat_with_llm(query: str):
                 line = meta.get("line_number", "?")
                 sources.append(f"{filename} → Page {page}, Line {line}")
 
-            #Correct order
             if answer is None:
                 answer = web_search_structured_answer(query)
                 source = "Answer from web search + Gemini"
