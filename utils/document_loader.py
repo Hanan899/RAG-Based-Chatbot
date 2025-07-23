@@ -8,12 +8,24 @@ from utils.image_preprocess import preprocess_image
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def process_pdf_bytes(pdf_bytes, filename):
-    full_text = ""
     images = convert_from_bytes(pdf_bytes, poppler_path=r"C:\Users\hani3\Downloads\poppler-24.08.0\Library\bin")
+    extracted = []
 
     for i, image in enumerate(images):
         preprocessed = preprocess_image(image)
         text = pytesseract.image_to_string(preprocessed, lang="eng+equ")
-        full_text += f"\n\n=== Page {i+1} ===\n{text}"
-    
-    return {"text": full_text, "name": filename}
+        lines = text.splitlines()
+
+        for line_number, line in enumerate(lines):
+            line = line.strip()
+            if line:
+                extracted.append({
+                    "text": line,
+                    "metadata": {
+                        "source": filename,
+                        "page_number": i + 1,
+                        "line_number": line_number + 1
+                    }
+                })
+
+    return extracted
