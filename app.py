@@ -9,11 +9,6 @@ from utils.web_search_tavily import web_search_structured_answer
 app = FastAPI()
 CHROMA_PATH = "chroma"
 
-
-@app.get("/")
-def root():
-    return {"status": "running"}
-
 @app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
     pdf_bytes = await file.read()
@@ -23,7 +18,7 @@ async def upload_file(file: UploadFile = File(...)):
 
     # Process in memory from base64 stream
     doc = process_pdf_bytes(decoded_bytes, file.filename)
-    chunks = split_documents([doc])
+    chunks = split_documents(doc)
     add_to_vector_store(chunks)
 
     return {
@@ -40,23 +35,29 @@ async def chat_with_llm(query: str):
     try:
         # Step 1: Try RAG vector store
         docs = query_vector_store(query, return_docs=True)
-        print(f"🔍 RAG vector store returned {len(docs)} documents for query: {query}")
-
         if docs:
-            context = "\n\n".join(docs)
+            context = "\n\n".join([doc["content"] for doc in docs])
             answer = generate_answer_from_gemini(query, context)
 
-            # Step 1.5: Check if Gemini said "I don't know"
-            if answer is None:  # Gemini fallback trigger
-                print("⚠️ Gemini indicated no useful info in PDF context. Falling back to web search.")
+            # Prepare source references from metadata
+            sources = []
+            for doc in docs:
+                meta = doc.get("metadata", {})
+                filename = meta.get("source", "Unknown file")
+                page = meta.get("page_number", "?")
+                line = meta.get("line_number", "?")
+                sources.append(f"{filename} → Page {page}, Line {line}")
+
+            #Correct order
+            if answer is None:
                 answer = web_search_structured_answer(query)
-                source = "🌐 Answer from web search + Gemini"
+                source = "Answer from web search + Gemini"
             else:
-                source = "📄 Answer from PDF using RAG"
+                source = "Answer from PDF using RAG\n" + "\n".join(sources)
+
         else:
-            print("🔍 No relevant documents from vector store. Using web search directly.")
             answer = web_search_structured_answer(query)
-            source = "🌐 Answer from web search + Gemini"
+            source = "Answer from web search + Gemini"
 
         return {
             "answer": answer,
