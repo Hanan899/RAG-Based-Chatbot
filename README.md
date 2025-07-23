@@ -1,17 +1,17 @@
 
-# 🔍 OCR-Based RAG Chatbot using FastAPI, Streamlit, ChromaDB & Gemini
+# RAG Chatbot using FastAPI & Gemini
 
-A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Gemini)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
+A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Gemini)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, store its references, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
 
 A practical example of **Retrieval-Augmented Generation (RAG)** with dynamic fallback.
 
 ---
 
-## 🚀 Features
+## Architecture:
 
-- 📄 Upload scanned PDFs or images
+- 📄 Upload Base64 encoded PDF's 
 - 🔤 Extract text using Tesseract OCR
-- ✂️ Chunk & preprocess text with overlap
+- ✂️ Chunk & Embedded text with Hugging Face Transformers
 - 🔎 Semantic similarity search using ChromaDB
 - 🤖 Answer generation using Google Gemini LLM
 - 🌐 Web fallback using Tavily API (when PDFs don't help)
@@ -90,7 +90,7 @@ streamlit run frontend.py
 
 ## ✨ How It Works
 
-1. **User Uploads PDF** → Converted to images → OCR via Tesseract  
+1. **User Uploads Base64 Encoded PDF** Decode to original → Converted to images → OCR via Tesseract  
 2. **Text Chunked** into overlapping segments  
 3. **Embeddings** generated using `sentence-transformers`  
 4. **Stored in ChromaDB** for semantic search  
