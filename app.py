@@ -3,7 +3,7 @@ from utils.document_loader import process_pdf_bytes
 from utils.text_splitter import split_documents
 from utils.vector_store import add_to_vector_store, query_vector_store
 import base64
-from utils.llm import generate_answer_from_gemini
+from utils.llm import generate_answer_from_groq
 from utils.web_search_tavily import web_search_structured_answer
 
 app = FastAPI()
@@ -36,7 +36,7 @@ async def chat_with_llm(query: str):
         docs = query_vector_store(query, return_docs=True)
         if docs:
             context = "\n\n".join([doc["content"] for doc in docs])
-            answer = generate_answer_from_gemini(query, context)
+            answer = generate_answer_from_groq(query, context)
 
             # Prepare source references from metadata
             sources = []
@@ -69,3 +69,4 @@ async def chat_with_llm(query: str):
             "source": "⚠️ None",
             "tokens": 0
         }
+
