@@ -1,7 +1,7 @@
 
 # RAG Chatbot using FastAPI & Gemini
 
-A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Gemini)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, store its references, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
+A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Groq)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, store its references, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
 
 A practical example of **Retrieval-Augmented Generation (RAG)** with dynamic fallback.
 
@@ -9,14 +9,14 @@ A practical example of **Retrieval-Augmented Generation (RAG)** with dynamic fal
 
 ## Architecture:
 
-- 📄 Upload Base64 encoded PDF's 
-- 🔤 Extract text using Tesseract OCR
-- ✂️ Chunk & Embedded text with Hugging Face Transformers
-- 🔎 Semantic similarity search using ChromaDB
-- 🤖 Answer generation using Google Gemini LLM
-- 🌐 Web fallback using Tavily API (when PDFs don't help)
-- 💬 Interactive frontend with Streamlit
-- ⚡ FastAPI backend for modular logic
+- Upload Base64 encoded PDF's 
+- Extract text using Tesseract OCR
+- Chunk & Embedded text with Hugging Face Transformers
+- Semantic similarity search using ChromaDB
+- Answer generation using Groq LLM
+- Web fallback using Tavily API (when PDFs don't help)
+- Interactive frontend with Streamlit
+- FastAPI backend for modular logic
 
 ---
 
@@ -58,15 +58,14 @@ pip install -r requirements.txt
 
 ### 3. Install required tools
 
-- [✅ Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (add to PATH)
-- [✅ Poppler](http://blog.alivate.com.au/poppler-windows/) (for `pdf2image`)
-- [✅ Gemini API key](https://makersuite.google.com/app) → export as:
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (add to PATH)
+- [Poppler](http://blog.alivate.com.au/poppler-windows/) (for `pdf2image`)
 
 ```bash
-export GOOGLE_API_KEY=your_api_key_here
+export GROQ_API_KEY=your_api_key_here
 ```
 
-- [✅ Tavily API key](https://docs.tavily.com/) → export as:
+- [Tavily API key](https://docs.tavily.com/) → export as:
 
 ```bash
 export TAVILY_API_KEY=your_tavily_api_key_here
@@ -86,7 +85,7 @@ streamlit run frontend.py
 
 ---
 
-## ✨ How It Works
+## How It Works
 
 1. **User Uploads Base64 Encoded PDF** Decode to original → Converted to images → OCR via Tesseract  
 2. **Text Chunked** into overlapping segments  
@@ -94,13 +93,13 @@ streamlit run frontend.py
 4. **Stored in ChromaDB** for semantic search  
 5. **Query Received** → Search vector store for matches  
 6. If match:
-   - Gemini LLM uses PDF context  
+   - Groq LLM uses PDF context  
 7. If no match or vague response:
-   - Tavily API retrieves web content → Answer via Gemini
+   - Tavily API retrieves web content → Answer via Groq
 
 ---
 
-## 🧪 Example Use Cases
+## Example Use Cases
 
 - Internal PDF Q&A (manuals, policies)
 - Academic Assistant (notes, research papers)
@@ -110,50 +109,43 @@ streamlit run frontend.py
 
 ---
 
-## 🧠 Sample Query
+## Sample Query
 
 > Upload: `machine_learning_guide.pdf`  
 > Ask: “What are model evaluation metrics?”  
-> ✅ Gemini replies based on PDF  
+> ✅ Groq replies based on PDF  
 > ❌ If not found → Tavily gets Wikipedia content → Gemini replies
 
 ---
 
-## 📦 Key Dependencies
+## Key Dependencies
 
 - `fastapi`, `uvicorn`
 - `streamlit`
 - `sentence-transformers`
 - `chromadb`
 - `tesserocr`, `opencv-python`, `pdf2image`
-- `google.generativeai` (Gemini API)
+- `langchain-groq` (Groq API)
 - `tavily-python`
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License**.  
-Use it freely in your personal or commercial projects.
-
----
-
-## 👨‍💻 Author
+## Author
 
 **Abdul Hanan**  
 AI Intern @ Hazen Technologies  
-🔗 [LinkedIn](https://www.linkedin.com/in/abdul-hanan-2003-)  
-📧 a.hananwork4@gmail.com
+[LinkedIn](https://www.linkedin.com/in/abdul-hanan-2003-)  
+a.hananwork4@gmail.com
 
 ---
 
-## 🤝 Want to Contribute?
+## Want to Contribute?
 
 Contributions and forks are welcome!  
 If you'd like to extend this chatbot with:
-- 🔁 Agent support
-- 🔊 Audio Input/Output
-- 🐳 Docker deployment
-- ☁️ Streamlit Cloud integration
+- Agent support
+- Audio Input/Output
+- Docker deployment
+- Streamlit Cloud integration
 
 Feel free to fork or open a pull request.
