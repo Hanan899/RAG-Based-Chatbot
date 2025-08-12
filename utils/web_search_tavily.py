@@ -1,6 +1,6 @@
 from tavily import TavilyClient
 import re
-from utils.llm import generate_answer_from_gemini  # import your Gemini LLM function
+from utils.llm import generate_answer_from_groq  # import your Groq LLM function
 
 TAVILY_API_KEY = "Api_Key"
 client = TavilyClient(api_key=TAVILY_API_KEY)
@@ -30,7 +30,7 @@ def web_search_structured_answer(query, max_results=3):
         cleaned_context = clean_text(combined_raw_text)
 
         # Step 3: Call Gemini model
-        structured_answer = generate_answer_from_gemini(query, cleaned_context)
+        structured_answer = generate_answer_from_groq(query, cleaned_context)
 
         return structured_answer
 
@@ -40,3 +40,4 @@ def web_search_structured_answer(query, max_results=3):
 
     except Exception as e:
         return f"❌ Search or processing error: {str(e)}"
+
