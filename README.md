@@ -1,5 +1,5 @@
 
-# RAG Chatbot using FastAPI & Gemini
+# RAG Chatbot using FastAPI & GroqCloud
 
 A smart document-based chatbot built with **Tesseract OCR**, **vector search (ChromaDB)**, and **LLMs (Groq)**. This app allows users to upload scanned PDFs, extract and embed content using OCR, store it in a vector store, store its references, and ask natural language questions. If no relevant answer is found in the PDFs, it falls back to **real-time web search using Tavily API**.
 
