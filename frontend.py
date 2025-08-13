@@ -5,133 +5,109 @@ from datetime import datetime
 
 FASTAPI_URL = "http://127.0.0.1:8000"
 
-st.set_page_config(page_title="RAG ChatBot", layout="wide")
-st.markdown("<h1 style='text-align: center;'>RAG ChatBot Assistant</h1>", unsafe_allow_html=True)
+st.set_page_config(page_title="RAG ChatBot", layout="centered")
+st.markdown("""
+    <style>
+        body { background-color: #f9f9f9; }
+        .stChatMessage { border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .user-msg { background-color: #d1e7dd; color: #000; }
+        .assistant-msg { background-color: #fff3cd; color: #000; }
+        .css-10trblm { text-align: center; }
+    </style>
+""", unsafe_allow_html=True)
 
-# --- Initialize session state ---
+st.markdown("<h1 style='text-align: center;'>RAG ChatBot</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: gray;'>A Document-Aware Conversational System</h4>", unsafe_allow_html=True)
+st.markdown("---")
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# --- SIDEBAR: File Upload Section ---
 with st.sidebar:
+    st.header("Controls")
+    if st.button("Clear Chat"):
+        st.session_state.messages = []
+
     st.markdown("## Upload PDFs")
-    uploaded_files = st.file_uploader("Upload one or more PDFs", type="pdf", accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Upload PDFs", type="pdf", accept_multiple_files=True)
 
     if st.button("Process PDFs") and uploaded_files:
         for uploaded_file in uploaded_files:
-            with st.spinner(f"Processing: {uploaded_file.name} ({round(len(uploaded_file.read())/1024, 2)} KB)"):
-                uploaded_file.seek(0)  # Reset file pointer
+            with st.spinner(f"Processing: {uploaded_file.name}"):
+                uploaded_file.seek(0)
                 pdf_bytes = uploaded_file.read()
                 files = {"file": (uploaded_file.name, pdf_bytes, "application/pdf")}
                 res = requests.post(f"{FASTAPI_URL}/upload/", files=files)
 
             if res.status_code == 200:
-                st.success(f" {uploaded_file.name} processed successfully!")
+                st.success(f"{uploaded_file.name} processed successfully!")
             else:
-                st.error(f" Failed to process {uploaded_file.name}")
+                st.error(f"Failed to process {uploaded_file.name}")
 
-# --- Display Chat History ---
 for msg in st.session_state.messages:
-    role = msg["role"]
-    timestamp = msg.get("timestamp", "")
-    content = msg["content"]
-    tokens = msg.get("tokens", "N/A")
-    latency = msg.get("latency", "N/A")
-    source = msg.get("source", None)
-
-    with st.chat_message(role):
-        st.markdown(f"**{'Hanan' if role=='user' else 'Agent'}** ({timestamp})", unsafe_allow_html=True)
-        st.markdown(f"> {content}")
-        if role == "agent":
-            st.caption(f"🧠 Tokens: `{tokens}` | ⏱️ Latency: `{latency}` sec")
-
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+        if msg["role"] == "assistant":
+            st.caption(f"🧠 Tokens: `{msg.get('tokens', 'N/A')}` | ⏱️ Latency: `{msg.get('latency', 'N/A')}` sec")
+            source = msg.get("source", None)
             if source:
                 if source.startswith("PDF:"):
-                    st.markdown("**Sources from Documents:**")
+                    st.markdown("**📄 Sources from Documents:**")
                     for ref in source.replace("PDF:", "").split(" | "):
                         st.markdown(f"- `{ref.strip()}`")
                 elif source.startswith("WEB:"):
-                    st.markdown("**Source from the Web:**")
+                    st.markdown("**🌐 Source from the Web:**")
                     st.markdown(f"- {source.replace('WEB:', '').strip()}")
                 else:
                     st.info(f"Source:\n{source}")
 
-# --- Chat Input Box ---
 if prompt := st.chat_input("Ask a question..."):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    st.session_state.messages.append({
-        "role": "user",
-        "content": prompt,
-        "timestamp": timestamp
-    })
+    timestamp = datetime.now().strftime("%b %d, %I:%M %p")
+    st.session_state.messages.append({"role": "user", "content": f"**You** ({timestamp})\n\n{prompt}"})
 
     with st.chat_message("user"):
-        st.markdown(f"**Hanan** ({timestamp})")
-        st.markdown(f"> {prompt}")
+        st.markdown(f"**You** ({timestamp})\n\n{prompt}")
 
     with st.chat_message("assistant"):
-        with st.spinner("Agent Thinking..."):
-            start = time.time()
+        with st.spinner("Thinking..."):
             try:
                 res = requests.post(f"{FASTAPI_URL}/chat/", params={"query": prompt})
-                end = time.time()
-
                 if res.status_code == 200:
                     data = res.json()
                     answer = data.get("answer", "No answer.")
-                    if any(phrase in answer for phrase in ["I do not have access", "I’m sorry", "I am sorry"]):
-                        answer = "I'm sorry"
-
                     tokens = data.get("tokens", "N/A")
-                    latency = round(end - start, 2)
                     source = data.get("source", "No source provided.")
-
-                    # Typing effect simulation
-                    container = st.empty()
-                    typed = ""
-                    for char in answer:
-                        typed += char
-                        container.markdown(f"**Agent ({timestamp})**\n\n> {typed}")
-                        time.sleep(0.01)
-
-                    st.caption(f"🧠 Tokens: `{tokens}` | ⏱️ Latency: `{latency}` sec")
-                    if source.startswith("PDF:"):
-                        st.markdown("**Sources from Documents:**")
-                        for ref in source.replace("PDF:", "").split(" | "):
-                            st.markdown(f"- `{ref.strip()}`")
-                    elif source.startswith("WEB:"):
-                        st.markdown("**Source from the Web:**")
-                        st.markdown(f"- {source.replace('WEB:', '').strip()}")
-                    else:
-                        st.info(f"Source:\n{source}")
-
-                    st.session_state.messages.append({
-                        "role": "agent",
-                        "content": answer,
-                        "tokens": tokens,
-                        "latency": latency,
-                        "timestamp": timestamp,
-                        "source": source
-                    })
-
+                    latency = data.get("latency", None) or "N/A"
                 else:
-                    error_msg = f"❌ Error: {res.text}"
-                    st.error(error_msg)
-                    st.session_state.messages.append({
-                        "role": "agent",
-                        "content": error_msg,
-                        "tokens": 0,
-                        "latency": 0,
-                        "timestamp": timestamp
-                    })
-
+                    answer, tokens, latency, source = f"❌ Error: {res.text}", 0, "N/A", None
             except Exception as e:
-                error_msg = f"❌ Exception: {str(e)}"
-                st.error(error_msg)
-                st.session_state.messages.append({
-                    "role": "agent",
-                    "content": error_msg,
-                    "tokens": 0,
-                    "latency": 0,
-                    "timestamp": timestamp
-                })
+                answer, tokens, latency, source = f"❌ Exception: {e}", 0, "N/A", None
+
+            # --- Typing animation ---
+            container = st.empty()
+            typed = ""
+            for char in answer:
+                typed += char
+                container.markdown(f"**Bot** ({timestamp})\n\n{typed}")
+                time.sleep(0.01)
+
+            st.caption(f"🧠 Tokens: `{tokens}` | ⏱️ Latency: `{latency}` sec")
+
+            if source:
+                if source.startswith("PDF:"):
+                    st.markdown("**📄 Sources from Documents:**")
+                    for ref in source.replace("PDF:", "").split(" | "):
+                        st.markdown(f"- `{ref.strip()}`")
+                elif source.startswith("WEB:"):
+                    st.markdown("**🌐 Source from the Web:**")
+                    st.markdown(f"- {source.replace('WEB:', '').strip()}")
+                else:
+                    st.info(f"Source:\n{source}")
+
+            st.session_state.messages.append({
+                "role": "assistant",
+                "content": f"**Bot** ({timestamp})\n\n{answer}",
+                "tokens": tokens,
+                "latency": latency,
+                "source": source
+            })
